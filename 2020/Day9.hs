@@ -14,4 +14,4 @@ windows :: Int -> [a] -> [[a]]
 windows m = transpose . take m . tails
 
 part2 :: Int
-part2 = head $ concatMap (\s -> [minimum w + maximum w | w <- windows s input, sum w == part1]) [2..length input]
+part2 = head [minimum w + maximum w | s <- [2..length input], w <- windows s input, sum w == part1]
