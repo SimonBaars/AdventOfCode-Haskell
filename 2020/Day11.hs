@@ -6,7 +6,7 @@ part1 :: Int
 part1 = (sum . concat) $ fp evolve (replicate (length input) (replicate (length $ head input) 0))
 
 evolve :: [[Int]] -> [[Int]]
-evolve ints = [[evolveCell (nAdjecent ints x y) (getGridPos input x y) (getGridPos ints x y) | y<- [0..length (head input)-1]] | x<- [0..length input-1]]
+evolve ints = [[evolveCell (nAdjacent ints x y) (getGridPos input x y) (getGridPos ints x y) | y<- [0..length (head input)-1]] | x<- [0..length input-1]]
 
 evolveCell :: Int -> Bool -> Int -> Int
 evolveCell 0 True 0 = 1
@@ -16,8 +16,8 @@ evolveCell _ _ x = x
 getGridPos :: [[a]] -> Int -> Int -> a
 getGridPos ints x y = (ints !! x) !! y
 
-nAdjecent :: [[Int]] -> Int -> Int -> Int
-nAdjecent ints i j = sum [getGridPos ints x y | x <- [-1+i..1+i], y <- [-1+j..1+j], x>=0, y>=0, x<length input, y<length (head input), not (x == i && y == j)]
+nAdjacent :: [[Int]] -> Int -> Int -> Int
+nAdjacent ints i j = sum [getGridPos ints x y | x <- [-1+i..1+i], y <- [-1+j..1+j], x>=0, y>=0, x<length input, y<length (head input), not (x == i && y == j)]
 
 part2 :: Int
 part2 = 0 -- TODO: Might do it later :)
