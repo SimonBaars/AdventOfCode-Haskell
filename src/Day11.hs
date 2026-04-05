@@ -38,11 +38,11 @@ parseBlock ls =
       splitOn c s = case break (== c) s of
         (a, _ : b) -> a : splitOn c b
         (a, []) -> [a]
-      op = parseOp opLine
+      opFn = parseOp opLine
       d = read $ last $ words testLine
       t = read $ last $ words trueLine
       f = read $ last $ words falseLine
-   in Monkey (nums itemsLine) op d t f 0
+   in Monkey (nums itemsLine) opFn d t f 0
 
 parseOp :: String -> Integer -> Integer
 parseOp s = case words s of
@@ -55,7 +55,7 @@ updateMonkey :: Int -> Monkey -> [Monkey] -> [Monkey]
 updateMonkey j m' ms = take j ms ++ [m'] ++ drop (j + 1) ms
 
 throwRound :: Bool -> Integer -> State [Monkey] ()
-throwRound part1 modulus = do
+throwRound worryDiv3 modulus = do
   n <- gets length
   forM_ [0 .. n - 1] $ \i -> go i
   where
@@ -69,7 +69,7 @@ throwRound part1 modulus = do
           modify $ updateMonkey i $ m {items = rest, inspections = inspections m + 1}
           let worry = op m it
               worry'
-                | part1 = worry `div` 3
+                | worryDiv3 = worry `div` 3
                 | otherwise = worry `mod` modulus
               dest = if worry' `mod` divTest m == 0 then ifTrue m else ifFalse m
           modify $ pushItem dest worry'

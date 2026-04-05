@@ -50,15 +50,15 @@ fetchInput day = do
 
 getInput :: Int -> IO String
 getInput day = do
-  let path = cachePath day
-  cached <- try (readFile path) :: IO (Either IOError String)
+  let cacheFile = cachePath day
+  cached <- try (readFile cacheFile) :: IO (Either IOError String)
   case cached of
     Right s -> pure s
     Left e
       | isDoesNotExistError e -> do
           createDirectoryIfMissing True cacheDir
           s <- fetchInput day
-          writeFile path s
+          writeFile cacheFile s
           pure s
       | otherwise -> ioError e
 

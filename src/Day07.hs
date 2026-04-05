@@ -1,6 +1,5 @@
 module Day07 (part1, part2) where
 
-import Control.Arrow (second)
 import Control.Monad.State
 import qualified Data.Map as Map
 
@@ -37,9 +36,7 @@ process cmds = snd $ execState (mapM_ step cmds) ([], Map.empty)
     step (File sz name) = do
       p <- gets fst
       let full = p ++ [name]
-      modify $ second $ Map.insert full sz
-      where
-        second f (a, b) = (a, f b)
+      modify $ \(cur, fs) -> (cur, Map.insert full sz fs)
 
 dirSizes :: FS -> Map.Map [String] Int
 dirSizes fs =

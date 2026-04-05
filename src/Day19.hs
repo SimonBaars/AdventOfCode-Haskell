@@ -2,8 +2,6 @@ module Day19 (part1, part2) where
 
 import Control.Monad.State
 import qualified Data.Map as Map
-import Data.List (maximum)
-
 data Blueprint = BP
   { bpId :: Int,
     oreOre :: Int,

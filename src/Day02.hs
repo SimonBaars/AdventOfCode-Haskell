@@ -1,7 +1,5 @@
 module Day02 (part1, part2) where
 
-import Data.List (sort)
-
 data Move = Rock | Paper | Scissors
   deriving (Eq, Enum)
 

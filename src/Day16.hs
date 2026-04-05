@@ -6,10 +6,7 @@ import qualified Data.Set as Set
 
 type Valve = String
 
-data VInfo = VInfo
-  { rate :: Int,
-    tunnels :: [String]
-  }
+data VInfo = VInfo Int [String]
 
 parseLine :: String -> (Valve, VInfo)
 parseLine s =
@@ -38,7 +35,7 @@ bfsDist g start = go (Set.singleton start) (Map.singleton start 0) [start]
     go _seen dist [] = dist
     go seen dist (x : xs) =
       let d = dist Map.! x
-          nbrs = tunnels $ g Map.! x
+          nbrs = case g Map.! x of VInfo _ ns -> ns
           foldNbr (sv, dv, q) n =
             if Set.member n sv
               then (sv, dv, q)

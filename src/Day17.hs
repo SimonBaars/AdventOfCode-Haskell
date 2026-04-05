@@ -69,6 +69,7 @@ simulateStep jets ji occ ri =
 part1 :: String -> Int
 part1 s =
   let jets = filter (`elem` "<>") $ concat $ lines s
+      go :: Int -> Int -> Set.Set Pt -> Int -> Int
       go !i !ji !occ !ri
         | i >= 2022 = towerHeight occ
         | otherwise =
@@ -82,13 +83,14 @@ part2 s =
       target = 1000000000000
       (i0, h0, clen, dh) = findCycle jets
       cycles = (target - i0) `div` clen
-      rem = (target - i0) `mod` clen
-      hRem = heightAfterN jets (i0 + rem) - h0
+      remRocks = (target - i0) `mod` clen
+      hRem = heightAfterN jets (i0 + remRocks) - h0
    in h0 + cycles * dh + hRem
 
 heightAfterN :: String -> Int -> Int
 heightAfterN jets n = go 0 0 Set.empty 0
   where
+    go :: Int -> Int -> Set.Set Pt -> Int -> Int
     go !i !ji !occ !ri
       | i >= n = towerHeight occ
       | otherwise =

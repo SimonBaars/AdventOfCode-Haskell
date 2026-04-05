@@ -78,7 +78,7 @@ part2 s =
         | a > 0 = Just 0
         | b < limit = Just (b + 1)
         | otherwise = Nothing
-      findGap ((a1, b1) : (a2, b2) : rest)
+      findGap ((_a1, b1) : (a2, b2) : rest)
         | b1 + 1 < a2 = Just (b1 + 1)
         | otherwise = findGap ((a2, b2) : rest)
       findY y

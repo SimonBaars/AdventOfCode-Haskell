@@ -99,17 +99,19 @@ step cube g r c d =
                in (wr, wc, d)
 
 walk :: Bool -> Grid -> String -> Int
-walk cube g moves = exec (0, startCol g, 0) moves :: Int
+walk cube g moves = exec (0, startCol g, 0) moves
   where
+    exec :: (Int, Int, Int) -> String -> Int
     exec (r, c, d) [] = password r c d
     exec (r, c, d) ('L' : ms) = exec (r, c, (d + 3) `mod` 4) ms
     exec (r, c, d) ('R' : ms) = exec (r, c, (d + 1) `mod` 4) ms
     exec pos (x : ms)
       | x `elem` ['0' .. '9'] =
           let (nStr, rest) = span (`elem` ['0' .. '9']) (x : ms)
-              n = read nStr
+              n = read nStr :: Int
            in walkN n pos rest
       | otherwise = exec pos ms
+    walkN :: Int -> (Int, Int, Int) -> String -> Int
     walkN 0 pos rest = exec pos rest
     walkN k (r, c, d) rest =
       let (nr, nc, nd) = step cube g r c d

@@ -14,7 +14,7 @@ tagged xs = zip [0 ..] xs
 
 moveOne :: [(Int, Integer)] -> Int -> [(Int, Integer)]
 moveOne xs k =
-  let elt@(i, v) = head $ filter ((== k) . fst) xs
+  let elt@(_, v) = head $ filter ((== k) . fst) xs
       pos = fromJust $ elemIndex elt xs
       xs' = delete elt xs
       len = length xs'

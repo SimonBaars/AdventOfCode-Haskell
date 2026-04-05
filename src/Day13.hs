@@ -1,6 +1,6 @@
 module Day13 (part1, part2) where
 
-import Data.List (elemIndex, intercalate, sort)
+import Data.List (elemIndex, sort)
 import Text.ParserCombinators.Parsec
 
 data Packet = PInt Int | PList [Packet]
@@ -11,9 +11,9 @@ packet = (PInt <$> read <$> many1 digit) <|> plist
 
 plist :: Parser Packet
 plist = do
-  char '['
+  _ <- char '['
   xs <- packet `sepBy` char ','
-  char ']'
+  _ <- char ']'
   return $ PList xs
 
 parsePacket :: String -> Packet
@@ -68,6 +68,6 @@ part2 s =
       d2 = divider 2
       d6 = divider 6
       sorted = sort $ packets ++ [d2, d6]
-      Just i2 = elemIndex d2 sorted
-      Just i6 = elemIndex d6 sorted
-   in (i2 + 1) * (i6 + 1)
+   in case (elemIndex d2 sorted, elemIndex d6 sorted) of
+        (Just i2, Just i6) -> (i2 + 1) * (i6 + 1)
+        _ -> error "Day13: divider not found"
