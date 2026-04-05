@@ -1,0 +1,30 @@
+cabal-version:      3.0
+name:               aoc2022
+version:            0.1.0.0
+license:            ISC
+build-type:         Simple
+
+executable aoc2022
+  main-is:            Main.hs
+  hs-source-dirs:     src
+  other-modules:
+      AOC.Input
+      Day01 Day02 Day03 Day04 Day05 Day06 Day07 Day08 Day09 Day10
+      Day11 Day12 Day13 Day14 Day15 Day16 Day17 Day18 Day19 Day20
+      Day21 Day22 Day23 Day24 Day25
+  default-language:   Haskell2010
+  default-extensions: BangPatterns MultiWayIf TypeApplications
+  ghc-options:        -Wall -O2
+  build-depends:
+      array
+    , base >= 4.14 && < 5
+    , bytestring
+    , containers
+    , directory
+    , filepath
+    , http-client
+    , http-client-tls
+    , http-types
+    , mtl
+    , parsec
+    , split
