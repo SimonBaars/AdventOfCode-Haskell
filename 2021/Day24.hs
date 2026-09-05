@@ -1,12 +1,12 @@
-import InputUtils (readInput)
+import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
 
--- Day 24: TODO
-input :: String
-input = unsafePerformIO $ readInput 2021 24
+input :: [String]
+input = unsafePerformIO $ readInputLines 2021 24
 
+-- ALU reverse engineering
 part1 :: Int
-part1 = 0
+part1 = 0  -- TODO: Requires manual analysis
 
 part2 :: Int
-part2 = 0
+part2 = 0  -- TODO: Requires manual analysis
