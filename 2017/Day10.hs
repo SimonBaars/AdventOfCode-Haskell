@@ -29,7 +29,7 @@ knotHash rounds lengths list = go rounds 0 0 list
         in (pos', skip', lst')
     
     reverse' start len lst =
-        let indices = [start + i `mod` length lst | i <- [0..len-1]]
+        let indices = [(start + i) `mod` length lst | i <- [0..len-1]]
             values = [lst !! i | i <- indices]
             revValues = reverse values
         in [if i `elem` indices then revValues !! (head [j | (j, idx) <- zip [0..] indices, idx == i]) else lst !! i | i <- [0..length lst - 1]]
