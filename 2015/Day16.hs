@@ -22,5 +22,16 @@ matchesPart1 props = all (\(k, v) -> Map.lookup k target == Just v) $ Map.toList
 part1 :: Int
 part1 = fst $ head $ filter (matchesPart1 . snd) $ map parseSue input
 
+matchesPart2 :: Map.Map String Int -> Bool
+matchesPart2 props = all checkProp $ Map.toList props
+  where
+    checkProp (k, v) = case (k, Map.lookup k target) of
+        ("cats", Just t) -> v > t
+        ("trees", Just t) -> v > t
+        ("pomeranians", Just t) -> v < t
+        ("goldfish", Just t) -> v < t
+        (_, Just t) -> v == t
+        _ -> False
+
 part2 :: Int
-part2 = part1  -- Placeholder
+part2 = fst $ head $ filter (matchesPart2 . snd) $ map parseSue input
