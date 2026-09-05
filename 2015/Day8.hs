@@ -4,27 +4,24 @@ import System.IO.Unsafe (unsafePerformIO)
 input :: [String]
 input = unsafePerformIO $ readInputLines 2015 8
 
-codeLength :: String -> Int
-codeLength = length
-
-memoryLength :: String -> Int
-memoryLength s = length $ unescape $ init $ tail s
+memLen :: String -> Int
+memLen = go . init . tail
   where
-    unescape [] = []
-    unescape ('\\':'\\':rest) = '\\' : unescape rest
-    unescape ('\\':'"':rest) = '"' : unescape rest
-    unescape ('\\':'x':_:_:rest) = 'X' : unescape rest
-    unescape (c:rest) = c : unescape rest
+    go [] = 0
+    go ('\\':'\\':xs) = 1 + go xs
+    go ('\\':'"':xs) = 1 + go xs
+    go ('\\':'x':_:_:xs) = 1 + go xs
+    go (_:xs) = 1 + go xs
 
-encodedLength :: String -> Int
-encodedLength s = 2 + length s + count s
+encLen :: String -> Int
+encLen s = 2 + sum (map esc s)
   where
-    count [] = 0
-    count (c:cs) | c == '\\' || c == '"' = 1 + count cs
-                 | otherwise = count cs
+    esc '"' = 2
+    esc '\\' = 2
+    esc _ = 1
 
 part1 :: Int
-part1 = sum (map codeLength input) - sum (map memoryLength input)
+part1 = sum [length s - memLen s | s <- input]
 
 part2 :: Int
-part2 = sum (map encodedLength input) - sum (map codeLength input)
+part2 = sum [encLen s - length s | s <- input]

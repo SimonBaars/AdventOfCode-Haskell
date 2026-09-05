@@ -1,34 +1,40 @@
+import Data.List (tails)
 import InputUtils (readInput)
 import System.IO.Unsafe (unsafePerformIO)
-import Data.List (group, tails)
 
 input :: String
 input = unsafePerformIO $ readInput 2015 11
 
-increment :: String -> String
-increment = reverse . inc . reverse
+inc :: String -> String
+inc = reverse . go . reverse
   where
-    inc [] = "a"
-    inc ('z':xs) = 'a' : inc xs
-    inc (x:xs) = succ x : xs
-
-isValid :: String -> Bool
-isValid s = hasStraight s && not (hasForbidden s) && hasTwoPairs s
+    go [] = "a"
+    go ('z':xs) = 'a' : go xs
+    go (c:xs) = succ c : xs
 
 hasStraight :: String -> Bool
-hasStraight s = any (\(a:b:c:_) -> succ a == b && succ b == c) (filter ((>= 3) . length) $ tails s)
+hasStraight s = any (\(a:b:c:_) -> succ a==b && succ b==c) [t | t@( _: _: _: _) <- tails s]
 
-hasForbidden :: String -> Bool
-hasForbidden s = any (`elem` "iol") s
+noForbidden :: String -> Bool
+noForbidden s = not $ any (`elem` s) "iol"
 
-hasTwoPairs :: String -> Bool
-hasTwoPairs s = (>= 2) $ length $ filter ((>= 2) . length) $ group s
+pairs :: String -> Int
+pairs = go Nothing
+  where
+    go _ [] = 0
+    go _ [_] = 0
+    go prev (a:b:xs)
+      | a==b && Just a /= prev = 1 + go (Just a) xs
+      | otherwise = go prev (b:xs)
 
-nextPassword :: String -> String
-nextPassword = head . filter isValid . tail . iterate increment
+valid :: String -> Bool
+valid s = hasStraight s && noForbidden s && pairs s >= 2
+
+nextValid :: String -> String
+nextValid = head . filter valid . iterate inc . inc
 
 part1 :: String
-part1 = nextPassword input
+part1 = nextValid input
 
 part2 :: String
-part2 = nextPassword part1
+part2 = nextValid part1

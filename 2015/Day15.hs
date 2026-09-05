@@ -1,38 +1,31 @@
+import Data.List (foldl1')
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
 
-input :: [String]
-input = unsafePerformIO $ readInputLines 2015 15
+-- capacity durability flavor texture calories
+type Ing = [Int]
 
-data Ingredient = Ingredient Int Int Int Int Int
-
-parseIngredient :: String -> Ingredient
-parseIngredient line = Ingredient cap dur flav tex cal
+input :: [Ing]
+input = map parse $ unsafePerformIO $ readInputLines 2015 15
   where
-    ws = words line
-    cap = read $ init $ ws !! 2
-    dur = read $ init $ ws !! 4
-    flav = read $ init $ ws !! 6
-    tex = read $ init $ ws !! 8
-    cal = read $ ws !! 10
+    parse line =
+      let ws = words $ map (\c -> if c==',' then ' ' else c) line
+          nums = map (read . filter (/=' ')) [ws!!2, ws!!4, ws!!6, ws!!8, ws!!10]
+      in nums
 
-score :: [Ingredient] -> [Int] -> Int
-score ingr amts = product $ map (max 0) [sum [a * v | (a, Ingredient v _ _ _ _) <- zip amts ingr],
-                                          sum [a * v | (a, Ingredient _ v _ _ _) <- zip amts ingr],
-                                          sum [a * v | (a, Ingredient _ _ v _ _) <- zip amts ingr],
-                                          sum [a * v | (a, Ingredient _ _ _ v _) <- zip amts ingr]]
+distributions :: Int -> Int -> [[Int]]
+distributions 1 total = [[total]]
+distributions n total = [ x:rest | x <- [0..total], rest <- distributions (n-1) (total-x) ]
+
+score :: Bool -> [Int] -> Int
+score calorieLimit amounts =
+  let mixed = foldl1' (zipWith (+)) $ zipWith (\amt ing -> map (amt*) ing) amounts input
+      props = take 4 mixed
+      cals = mixed !! 4
+  in if calorieLimit && cals /= 500 then 0 else product (map (max 0) props)
 
 part1 :: Int
-part1 = maximum [score ingrs combo | combo <- combos 4 100]
-  where
-    ingrs = map parseIngredient input
-    combos 1 n = [[n]]
-    combos k n = [x:rest | x <- [0..n], rest <- combos (k-1) (n-x)]
+part1 = maximum [ score False d | d <- distributions (length input) 100 ]
 
 part2 :: Int
-part2 = maximum [score ingrs combo | combo <- combos 4 100, calories combo == 500]
-  where
-    ingrs = map parseIngredient input
-    calories amts = sum [a * v | (a, Ingredient _ _ _ _ v) <- zip amts ingrs]
-    combos 1 n = [[n]]
-    combos k n = [x:rest | x <- [0..n], rest <- combos (k-1) (n-x)]
+part2 = maximum [ score True d | d <- distributions (length input) 100 ]

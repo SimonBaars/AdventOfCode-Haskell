@@ -1,25 +1,28 @@
+{-# LANGUAGE BangPatterns #-}
 import InputUtils (readInput)
 import System.IO.Unsafe (unsafePerformIO)
+import Data.Char (isDigit)
 
 input :: String
 input = unsafePerformIO $ readInput 2015 25
 
--- Extract row and column from input
-parseInput :: String -> (Int, Int)
-parseInput s = (row, col)
+row, col :: Int
+(row, col) =
+  let nums = map read $ words $ map (\c -> if isDigit c then c else ' ') input :: [Int]
+  in (nums!!0, nums!!1)
+
+position :: Int -> Int -> Int
+position r c = let d = r + c - 1 in d*(d-1) `div` 2 + c
+
+codeAt :: Int -> Integer
+codeAt pos = go 20151125 1
   where
-    ws = words s
-    row = read $ init $ ws !! 15
-    col = read $ init $ ws !! 17
+    go !code !i
+      | i == pos = code
+      | otherwise = go ((code * 252533) `mod` 33554393) (i+1)
 
-codeAt :: Int -> Int -> Int
-codeAt row col = iterate next 20151125 !! (index - 1)
-  where
-    index = sum [1..row+col-2] + col
-    next x = (x * 252533) `mod` 33554393
+part1 :: Integer
+part1 = codeAt (position row col)
 
-part1 :: Int
-part1 = uncurry codeAt (parseInput input)
-
-part2 :: String
-part2 = "Merry Christmas!"
+part2 :: Integer
+part2 = 0

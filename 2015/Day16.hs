@@ -1,37 +1,48 @@
+import Data.List (isPrefixOf)
+import qualified Data.Map.Strict as M
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-import qualified Data.Map as Map
 
-input :: [String]
-input = unsafePerformIO $ readInputLines 2015 16
+type Sue = (Int, M.Map String Int)
 
-target = Map.fromList [("children",3),("cats",7),("samoyeds",2),("pomeranians",3),
-                       ("akitas",0),("vizslas",0),("goldfish",5),("trees",3),
-                       ("cars",2),("perfumes",1)]
-
-parseSue :: String -> (Int, Map.Map String Int)
-parseSue line = (num, props)
+input :: [Sue]
+input = map parse $ unsafePerformIO $ readInputLines 2015 16
   where
-    ws = words $ filter (/= ',') $ filter (/= ':') line
-    num = read $ ws !! 1
-    props = Map.fromList [(ws !! i, read $ ws !! (i+1)) | i <- [2,4..length ws-2]]
+    parse line =
+      let -- Sue 1: goldfish: 6, trees: 9, akitas: 0
+          n = read $ takeWhile (/=':') $ drop 4 line :: Int
+          rest = drop 2 $ dropWhile (/=':') line
+          parts = splitCommas rest
+          kvs = M.fromList [ (k, read v) | p <- parts, let (k,v)=splitKV p ]
+      in (n, kvs)
+    splitCommas s = case break (==',') s of
+      (a,"") -> [trim a]
+      (a,',':b) -> trim a : splitCommas b
+      _ -> [s]
+    trim = dropWhile (==' ') . reverse . dropWhile (==' ') . reverse
+    splitKV s =
+      let (k, ':':v) = break (==':') (trim s)
+      in (trim k, trim v)
 
-matchesPart1 :: Map.Map String Int -> Bool
-matchesPart1 props = all (\(k, v) -> Map.lookup k target == Just v) $ Map.toList props
+target :: M.Map String Int
+target = M.fromList
+  [ ("children",3),("cats",7),("samoyeds",2),("pomeranians",3)
+  , ("akitas",0),("vizslas",0),("goldfish",5),("trees",3)
+  , ("cars",2),("perfumes",1) ]
+
+match1 :: Sue -> Bool
+match1 (_, m) = all (\(k,v) -> M.findWithDefault v k target == v) (M.toList m)
+
+match2 :: Sue -> Bool
+match2 (_, m) = all ok (M.toList m)
+  where
+    ok (k,v)
+      | k `elem` ["cats","trees"] = v > target M.! k
+      | k `elem` ["pomeranians","goldfish"] = v < target M.! k
+      | otherwise = target M.! k == v
 
 part1 :: Int
-part1 = fst $ head $ filter (matchesPart1 . snd) $ map parseSue input
-
-matchesPart2 :: Map.Map String Int -> Bool
-matchesPart2 props = all checkProp $ Map.toList props
-  where
-    checkProp (k, v) = case (k, Map.lookup k target) of
-        ("cats", Just t) -> v > t
-        ("trees", Just t) -> v > t
-        ("pomeranians", Just t) -> v < t
-        ("goldfish", Just t) -> v < t
-        (_, Just t) -> v == t
-        _ -> False
+part1 = fst . head $ filter match1 input
 
 part2 :: Int
-part2 = fst $ head $ filter (matchesPart2 . snd) $ map parseSue input
+part2 = fst . head $ filter match2 input

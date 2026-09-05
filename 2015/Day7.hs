@@ -1,54 +1,69 @@
+import Data.Bits
+import Data.Char (isDigit)
+import qualified Data.Map.Strict as M
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-import qualified Data.Map as Map
-import Data.Bits
-import Data.Word (Word16)
+
+type Wire = String
+type Val = Int
 
 input :: [String]
 input = unsafePerformIO $ readInputLines 2015 7
 
-type Circuit = Map.Map String Word16
+data Expr = Lit Val | Var Wire | Not Expr | Bin String Expr Expr deriving (Show)
 
-evalWire :: Map.Map String String -> Circuit -> String -> (Circuit, Word16)
-evalWire rules cache wire
-    | Map.member wire cache = (cache, cache Map.! wire)
-    | all (`elem` "0123456789") wire = (cache, read wire)
-    | otherwise = 
-        let rule = rules Map.! wire
-            words' = words rule
-            (cache', val) = case words' of
-                [x] -> evalWire rules cache x
-                ["NOT", x] -> let (c, v) = evalWire rules cache x in (c, complement v)
-                [x, "AND", y] -> let (c1, v1) = evalWire rules cache x
-                                     (c2, v2) = evalWire rules c1 y
-                                 in (c2, v1 .&. v2)
-                [x, "OR", y] -> let (c1, v1) = evalWire rules cache x
-                                    (c2, v2) = evalWire rules c1 y
-                                in (c2, v1 .|. v2)
-                [x, "LSHIFT", n] -> let (c, v) = evalWire rules cache x in (c, shiftL v (read n))
-                [x, "RSHIFT", n] -> let (c, v) = evalWire rules cache x in (c, shiftR v (read n))
-        in (Map.insert wire val cache', val)
+splitArrow :: String -> (String, String)
+splitArrow s =
+  case break (=='-') s of
+    (lhs, '-':'>':rhs) -> (reverse . dropWhile (==' ') . reverse $ lhs, dropWhile (==' ') rhs)
+    _ -> error s
 
-parseRules :: [String] -> Map.Map String String
-parseRules = Map.fromList . map (\line -> let [expr, wire] = splitOn " -> " line in (wire, expr))
+parseLine :: String -> (Wire, Expr)
+parseLine line =
+  let (exprStr, wire) = splitArrow line
+  in (wire, parseExpr (words exprStr))
 
-splitOn :: String -> String -> [String]
-splitOn delim str = case breakOn delim str of
-    (a, "") -> [a]
-    (a, rest) -> a : splitOn delim (drop (length delim) rest)
-  where
-    breakOn needle haystack = go [] haystack
-      where
-        go acc [] = (reverse acc, "")
-        go acc s@(c:cs)
-            | take (length needle) s == needle = (reverse acc, s)
-            | otherwise = go (c:acc) cs
+parseExpr :: [String] -> Expr
+parseExpr [a] = atom a
+parseExpr ["NOT", a] = Not (atom a)
+parseExpr [a, op, b] = Bin op (atom a) (atom b)
+parseExpr ws = error $ show ws
 
-part1 :: Word16
-part1 = snd $ evalWire (parseRules input) Map.empty "a"
+atom :: String -> Expr
+atom s | all isDigit s = Lit (read s)
+       | otherwise = Var s
 
-part2 :: Word16
-part2 = snd $ evalWire (parseRules $ map override input) Map.empty "a"
-  where
-    override line | " -> b" `elem` words line = show part1 ++ " -> b"
-                  | otherwise = line
+eval :: M.Map Wire Expr -> M.Map Wire Val -> Wire -> (Val, M.Map Wire Val)
+eval rules memo w
+  | Just v <- M.lookup w memo = (v, memo)
+  | otherwise =
+      let (v, memo') = evalExpr rules memo (rules M.! w)
+      in (v, M.insert w v memo')
+
+evalExpr :: M.Map Wire Expr -> M.Map Wire Val -> Expr -> (Val, M.Map Wire Val)
+evalExpr _ memo (Lit n) = (n .&. 0xFFFF, memo)
+evalExpr rules memo (Var w) = eval rules memo w
+evalExpr rules memo (Not e) =
+  let (v, m) = evalExpr rules memo e in ((complement v) .&. 0xFFFF, m)
+evalExpr rules memo (Bin op a b) =
+  let (va, m1) = evalExpr rules memo a
+      (vb, m2) = evalExpr rules m1 b
+      r = case op of
+        "AND" -> va .&. vb
+        "OR" -> va .|. vb
+        "LSHIFT" -> shiftL va vb
+        "RSHIFT" -> shiftR va vb
+        _ -> error op
+  in (r .&. 0xFFFF, m2)
+
+solve :: M.Map Wire Expr -> Val
+solve rules = fst $ eval rules M.empty "a"
+
+rules0 :: M.Map Wire Expr
+rules0 = M.fromList $ map parseLine input
+
+part1 :: Int
+part1 = solve rules0
+
+part2 :: Int
+part2 = solve (M.insert "b" (Lit part1) rules0)

@@ -1,15 +1,20 @@
 import InputUtils (readInput)
 import System.IO.Unsafe (unsafePerformIO)
-import Data.List (group)
 
 input :: String
 input = unsafePerformIO $ readInput 2015 10
 
-lookAndSay :: String -> String
-lookAndSay = concatMap (\g -> show (length g) ++ [head g]) . group
+lookSay :: String -> String
+lookSay = concatMap (\g -> show (length g) ++ [head g]) . group'
+  where
+    group' [] = []
+    group' (x:xs) = let (a,b) = span (==x) xs in (x:a) : group' b
+
+applyN :: Int -> String -> String
+applyN n s = iterate lookSay s !! n
 
 part1 :: Int
-part1 = length $ iterate lookAndSay input !! 40
+part1 = length $ applyN 40 input
 
 part2 :: Int
-part2 = length $ iterate lookAndSay input !! 50
+part2 = length $ applyN 50 input

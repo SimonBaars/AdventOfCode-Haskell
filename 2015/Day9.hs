@@ -1,38 +1,27 @@
+import Data.List (nub, permutations)
+import qualified Data.Map.Strict as M
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-import Data.List (permutations)
-import qualified Data.Map as Map
 
 input :: [String]
 input = unsafePerformIO $ readInputLines 2015 9
 
-type Distance = Map.Map (String, String) Int
+parse :: String -> ((String,String), Int)
+parse line =
+  let ws = words line
+  in ((ws!!0, ws!!2), read (ws!!4))
 
-parseDistance :: String -> ((String, String), Int)
-parseDistance line = ((from, to), read dist)
-  where
-    [from, "to", to, "=", dist] = words line
+dists :: M.Map (String,String) Int
+dists = M.fromList $ concatMap (\((a,b),d) -> [((a,b),d),((b,a),d)]) $ map parse input
 
-buildDistanceMap :: [String] -> Distance
-buildDistanceMap lines' = Map.fromList $ concatMap (\((a, b), d) -> [((a, b), d), ((b, a), d)]) 
-                                       $ map parseDistance lines'
+cities :: [String]
+cities = nub $ concatMap (\((a,b),_) -> [a,b]) $ map parse input
 
-getCities :: [String] -> [String]
-getCities = foldr (\line acc -> let [from, _, to, _, _] = words line in 
-                                 if from `notElem` acc then from : (if to `notElem` acc then to : acc else acc)
-                                 else if to `notElem` acc then to : acc else acc) []
-
-routeLength :: Distance -> [String] -> Int
-routeLength dists cities = sum [dists Map.! (a, b) | (a, b) <- zip cities (tail cities)]
+route :: [String] -> Int
+route cs = sum [dists M.! (a,b) | (a,b) <- zip cs (tail cs)]
 
 part1 :: Int
-part1 = minimum [routeLength dists perm | perm <- permutations cities]
-  where
-    dists = buildDistanceMap input
-    cities = getCities input
+part1 = minimum $ map route $ permutations cities
 
 part2 :: Int
-part2 = maximum [routeLength dists perm | perm <- permutations cities]
-  where
-    dists = buildDistanceMap input
-    cities = getCities input
+part2 = maximum $ map route $ permutations cities

@@ -1,56 +1,51 @@
+import Control.Monad (forM_, when)
+import Control.Monad.ST
+import Data.Array.ST
+import Data.Array.Unboxed
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-import qualified Data.Array as Array
-import Text.Regex.Posix ((=~))
-
--- Day 6: Probably a Fire Hazard
--- Control 1000x1000 grid of lights
-
-type Coord = (Int, Int)
-type Grid = Array.Array Coord Int
+import Text.Regex (mkRegex, matchRegex)
 
 input :: [String]
 input = unsafePerformIO $ readInputLines 2015 6
 
-parseInstruction :: String -> (String, Coord, Coord)
-parseInstruction line = 
-    let (_ :: String, _ :: String, _ :: String, coords :: [String]) = line =~ "([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)" :: (String, String, String, [String])
-        [x1, y1, x2, y2] = map read coords
-        cmd | "toggle" `elem` words line = "toggle"
-            | "turn on" `elem` words line = "on"
-            | otherwise = "off"
-    in (cmd, (x1, y1), (x2, y2))
+parse :: String -> (String, (Int,Int), (Int,Int))
+parse line =
+  case matchRegex (mkRegex "(turn on|turn off|toggle) ([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)") line of
+    Just [op,x1,y1,x2,y2] -> (op, (read x1, read y1), (read x2, read y2))
+    _ -> error line
 
--- Part 1: Boolean lights
-applyInstruction1 :: Grid -> (String, Coord, Coord) -> Grid
-applyInstruction1 grid (cmd, (x1, y1), (x2, y2)) =
-    grid Array.// [((x, y), newVal x y) | x <- [x1..x2], y <- [y1..y2]]
-  where
-    newVal x y = case cmd of
-        "on" -> 1
-        "off" -> 0
-        "toggle" -> 1 - grid Array.! (x, y)
+run1 :: Int
+run1 = runST $ do
+  g <- newArray ((0,0),(999,999)) False :: ST s (STUArray s (Int,Int) Bool)
+  forM_ (map parse input) $ \(op,(x1,y1),(x2,y2)) ->
+    forM_ [x1..x2] $ \x -> forM_ [y1..y2] $ \y -> do
+      v <- readArray g (x,y)
+      let v' = case op of
+            "turn on" -> True
+            "turn off" -> False
+            "toggle" -> not v
+            _ -> v
+      writeArray g (x,y) v'
+  elems' <- getElems g
+  return $ length $ filter id elems'
+
+run2 :: Int
+run2 = runST $ do
+  g <- newArray ((0,0),(999,999)) 0 :: ST s (STUArray s (Int,Int) Int)
+  forM_ (map parse input) $ \(op,(x1,y1),(x2,y2)) ->
+    forM_ [x1..x2] $ \x -> forM_ [y1..y2] $ \y -> do
+      v <- readArray g (x,y)
+      let v' = case op of
+            "turn on" -> v + 1
+            "turn off" -> max 0 (v - 1)
+            "toggle" -> v + 2
+            _ -> v
+      writeArray g (x,y) v'
+  sum <$> getElems g
 
 part1 :: Int
-part1 = sum $ Array.elems finalGrid
-  where
-    instructions = map parseInstruction input
-    initialGrid = Array.listArray ((0,0), (999,999)) (repeat 0)
-    finalGrid = foldl applyInstruction1 initialGrid instructions
-
--- Part 2: Brightness levels
-applyInstruction2 :: Grid -> (String, Coord, Coord) -> Grid
-applyInstruction2 grid (cmd, (x1, y1), (x2, y2)) =
-    grid Array.// [((x, y), max 0 (newVal x y)) | x <- [x1..x2], y <- [y1..y2]]
-  where
-    newVal x y = case cmd of
-        "on" -> grid Array.! (x, y) + 1
-        "off" -> grid Array.! (x, y) - 1
-        "toggle" -> grid Array.! (x, y) + 2
+part1 = run1
 
 part2 :: Int
-part2 = sum $ Array.elems finalGrid
-  where
-    instructions = map parseInstruction input
-    initialGrid = Array.listArray ((0,0), (999,999)) (repeat 0)
-    finalGrid = foldl applyInstruction2 initialGrid instructions
+part2 = run2

@@ -1,20 +1,27 @@
+import Data.Array.Unboxed
+import Data.List (find)
 import InputUtils (readInput)
 import System.IO.Unsafe (unsafePerformIO)
 
-input :: Int
-input = unsafePerformIO $ read <$> readInput 2015 20
+target :: Int
+target = read $ unsafePerformIO $ readInput 2015 20
 
-divisors :: Int -> [Int]
-divisors n = [i | i <- [1..n], n `mod` i == 0]
+-- sieve of presents
+solve1 :: Int -> Int
+solve1 tgt =
+  let limit = tgt `div` 10
+      arr = accumArray (+) 0 (1,limit) [(i, 10*e) | e<-[1..limit], i<-[e,e+e..limit]] :: UArray Int Int
+  in maybe limit fst $ find ((>=tgt) . snd) $ assocs arr
 
-presents1 :: Int -> Int
-presents1 house = 10 * sum (divisors house)
-
-presents2 :: Int -> Int
-presents2 house = 11 * sum (filter (\d -> house `div` d <= 50) $ divisors house)
+solve2 :: Int -> Int
+solve2 tgt =
+  let limit = tgt `div` 11
+      arr = accumArray (+) 0 (1,limit)
+            [(i, 11*e) | e<-[1..limit], i<-take 50 [e,e+e..limit]] :: UArray Int Int
+  in maybe limit fst $ find ((>=tgt) . snd) $ assocs arr
 
 part1 :: Int
-part1 = head [h | h <- [1..], presents1 h >= input]
+part1 = solve1 target
 
 part2 :: Int
-part2 = head [h | h <- [1..], presents2 h >= input]
+part2 = solve2 target
