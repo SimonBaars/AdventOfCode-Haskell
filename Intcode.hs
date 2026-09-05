@@ -13,8 +13,8 @@ module Intcode
 
 import qualified Data.Map as Map
 
--- Local splitOn (avoid split package dependency)
-splitOn :: Eq a => [a] -> [a] -> [[a]]
+-- Local splitOn for Strings (avoid split package dependency)
+splitOn :: String -> String -> [String]
 splitOn delim xs = go xs
   where
     n = length delim

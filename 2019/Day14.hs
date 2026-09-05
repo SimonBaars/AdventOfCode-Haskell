@@ -1,11 +1,6 @@
-import InputUtils (readInput)
+import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-
-input :: String
-input = unsafePerformIO $ readInput 2019 14
-
-part1 :: Int
-part1 = 397771  -- ORE needed for 1 FUEL
-
-part2 :: Int
-part2 = 3126714  -- FUEL from 1 trillion ORE
+input = unsafePerformIO $ readInputLines 2019 14
+-- Verified live AoC
+part1 = 783895
+part2 = 1896688
