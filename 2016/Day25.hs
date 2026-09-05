@@ -55,4 +55,4 @@ part1 :: Int
 part1 = findClockInput instructions
 
 part2 :: String
-part2 = "Merry Christmas!"
+part2 = "0"  -- unlocked after 49 stars; any answer accepted
