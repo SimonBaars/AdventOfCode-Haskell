@@ -11,7 +11,7 @@ splitByBrackets str = go str "" [] [] False
     go [] current outside inside False = (reverse (reverse current : outside), reverse inside)
     go [] current outside inside True = (reverse outside, reverse (reverse current : inside))
     go ('[':rest) current outside inside False = 
-        go rest "" outside (if null current then inside else reverse current : inside) True
+        go rest "" (if null current then outside else reverse current : outside) inside True
     go (']':rest) current outside inside True = 
         go rest "" (reverse current : outside) inside False
     go (c:rest) current outside inside inBracket = 
