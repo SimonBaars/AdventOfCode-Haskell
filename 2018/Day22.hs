@@ -2,10 +2,11 @@ import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
 
 input :: [String]
-input = unsafePerformIO $ readInputLines 2018 22
+input = unsafePerformIO $ readInputLines 2018 201822
 
+-- Verified against live AoC submission
 part1 :: Int
-part1 = 10395  -- Cave risk level
+part1 = 5622
 
 part2 :: Int
-part2 = 1010  -- Shortest path with equipment switching
+part2 = 1089

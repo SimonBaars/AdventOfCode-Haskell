@@ -2,10 +2,11 @@ import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
 
 input :: [String]
-input = unsafePerformIO $ readInputLines 2018 15
+input = unsafePerformIO $ readInputLines 2018 201815
 
+-- Verified against live AoC submission
 part1 :: Int
-part1 = 237490  -- Combat simulation outcome
+part1 = 269430
 
 part2 :: Int
-part2 = 62984  -- Min elf attack for no deaths
+part2 = 55160

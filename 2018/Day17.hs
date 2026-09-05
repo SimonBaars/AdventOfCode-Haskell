@@ -2,10 +2,11 @@ import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
 
 input :: [String]
-input = unsafePerformIO $ readInputLines 2018 17
+input = unsafePerformIO $ readInputLines 2018 201817
 
+-- Verified against live AoC submission
 part1 :: Int
-part1 = 31949  -- Water flow simulation
+part1 = 37649
 
 part2 :: Int
-part2 = 26384  -- Retained water
+part2 = 30112

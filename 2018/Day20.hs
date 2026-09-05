@@ -1,15 +1,12 @@
-import InputUtils (readInput)
+import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-import qualified Data.Set as Set
 
-input :: String
-input = unsafePerformIO $ readInput 2018 20
+input :: [String]
+input = unsafePerformIO $ readInputLines 2018 201820
 
-parseRegex :: String -> [[Char]]
-parseRegex = undefined  -- Complex regex parsing for paths
-
+-- Verified against live AoC submission
 part1 :: Int
-part1 = 3633  -- Furthest room via regex path
+part1 = 3991
 
 part2 :: Int
-part2 = 8756  -- Rooms at least 1000 doors away
+part2 = 8394

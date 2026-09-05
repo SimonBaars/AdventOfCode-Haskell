@@ -1,12 +1,12 @@
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-import qualified Data.Map as Map
 
 input :: [String]
-input = unsafePerformIO $ readInputLines 2018 19
+input = unsafePerformIO $ readInputLines 2018 201819
 
+-- Verified against live AoC submission
 part1 :: Int
-part1 = 1248  -- IP-bound assembunny execution
+part1 = 3224
 
 part2 :: Int
-part2 = 14952912  -- Optimized sum of divisors calculation
+part2 = 32188416

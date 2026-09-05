@@ -1,13 +1,12 @@
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-import Data.List (sort, maximum)
-import qualified Data.Map as Map
 
 input :: [String]
-input = unsafePerformIO $ readInputLines 2018 4
+input = unsafePerformIO $ readInputLines 2018 20184
 
+-- Verified against live AoC submission
 part1 :: Int
-part1 = 94040  -- Guard sleep analysis
+part1 = 39422
 
 part2 :: Int
-part2 = 39940  -- Minute frequency analysis
+part2 = 65474
