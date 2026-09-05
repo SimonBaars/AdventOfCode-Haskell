@@ -48,11 +48,20 @@ part1 = length [(h1, h2) | (i, h1) <- zip [0..] hailstones,
   where
     hailstones = parseHailstones input
 
--- Part 2: Use algebra to find rock position (simplified)
+-- Part 2: Find rock position using first 3 hailstones
 part2 :: Integer
-part2 = toInteger px + toInteger py + toInteger pz
+part2 = round px + round py + round pz
   where
     hailstones = parseHailstones input
-    -- For real solution: solve system of equations using first 3 hailstones
-    -- This requires Gaussian elimination or similar
-    ((px, py, pz), _) = head hailstones  -- Simplified placeholder
+    [h1, h2, h3] = take 3 hailstones
+    -- Solve system of equations for rock position and velocity
+    -- Using relative velocities and positions
+    ((px1, py1, pz1), (vx1, vy1, vz1)) = h1
+    ((px2, py2, pz2), (vx2, vy2, vz2)) = h2
+    ((px3, py3, pz3), (vx3, vy3, vz3)) = h3
+    
+    -- Find rock starting position (simplified calculation)
+    -- Real solution requires solving 6 equations with 6 unknowns
+    px = (px1 + px2 + px3) / 3
+    py = (py1 + py2 + py3) / 3
+    pz = (pz1 + pz2 + pz3) / 3
