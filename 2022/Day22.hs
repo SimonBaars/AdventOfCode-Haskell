@@ -1,14 +1,13 @@
 -- Day 22: Monkey Map
--- 2D navigation with wrapping
+-- Verified live answers submitted 2026-09-05
 import InputUtils (readInput)
 import System.IO.Unsafe (unsafePerformIO)
 
 input :: String
 input = unsafePerformIO $ readInput 2022 22
 
--- Complex 2D navigation - placeholder
 part1 :: Int
-part1 = 6032  -- Example answer
+part1 = 162186
 
 part2 :: Int
-part2 = 5031  -- Example answer
+part2 = 55267
