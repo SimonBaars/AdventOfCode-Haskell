@@ -1,11 +1,9 @@
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
 import qualified Data.Map as Map
-import Data.Char (digitToInt)
-import Data.Bits (setBit, clearBit, testBit)
+import Data.Bits (setBit, clearBit)
 
 -- Day 14: Docking Data
--- Bitmask operations on memory
 
 data Instruction = Mask String | Mem Int Int deriving (Show)
 
@@ -20,9 +18,8 @@ parseInstruction line
     addr = read $ takeWhile (/= ']') $ drop 4 line
     val = read $ drop 1 $ dropWhile (/= '=') line
 
--- Part 1: Apply mask to values
 part1 :: Int
-part1 = sum $ Map.elems $ foldl execute1 Map.empty input
+part1 = sum $ Map.elems $ fst $ foldl execute1 (Map.empty, replicate 36 'X') input
   where
     execute1 (mem, _) (Mask m) = (mem, m)
     execute1 (mem, mask) (Mem addr val) = (Map.insert addr (applyMask1 mask val) mem, mask)
@@ -34,25 +31,27 @@ applyMask1 mask val = foldl applyBit val (zip [35,34..0] mask)
     applyBit v (pos, '1') = setBit v pos
     applyBit v _ = v
 
--- Part 2: Apply mask to addresses with floating bits
 part2 :: Int
-part2 = sum $ Map.elems $ foldl execute2 Map.empty input
+part2 = sum $ Map.elems $ fst $ foldl execute2 (Map.empty, replicate 36 'X') input
   where
     execute2 (mem, _) (Mask m) = (mem, m)
-    execute2 (mem, mask) (Mem addr val) = 
+    execute2 (mem, mask) (Mem addr val) =
         (foldr (\a m -> Map.insert a val m) mem (generateAddrs mask addr), mask)
 
 generateAddrs :: String -> Int -> [Int]
-generateAddrs mask addr = [applyMask2 mask addr bits | bits <- generateBits xCount]
+generateAddrs mask addr = map (applyMask2 mask addr) (generateBits xCount)
   where
     xCount = length $ filter (== 'X') mask
-    generateBits n = [[testBit i b | b <- [0..n-1]] | i <- [0..2^n-1]]
+    generateBits n = [[testBit' i b | b <- [0..n-1]] | i <- [0..(2^n)-1]]
+    testBit' i b = (i `div` (2^b)) `mod` 2 == 1
 
 applyMask2 :: String -> Int -> [Bool] -> Int
-applyMask2 mask addr floatingBits = foldl applyBit addr (zip3 [35,34..0] mask floatingBits')
+applyMask2 mask addr floatingBits = go 0 (zip [35,34..0] mask) floatingBits
   where
-    floatingBits' = floatingBits ++ repeat False
-    applyBit v (pos, '1', _) = setBit v pos
-    applyBit v (pos, 'X', True) = setBit v pos
-    applyBit v (pos, 'X', False) = clearBit v pos
-    applyBit v _ = v
+    go v [] _ = v
+    go v ((pos, '0'):rest) bits = go (if testBitOrig addr pos then setBit v pos else clearBit v pos) rest bits
+    go v ((pos, '1'):rest) bits = go (setBit v pos) rest bits
+    go v ((pos, 'X'):rest) (b:bits) = go (if b then setBit v pos else clearBit v pos) rest bits
+    go v ((pos, 'X'):rest) [] = go (clearBit v pos) rest []
+    go v (_:rest) bits = go v rest bits
+    testBitOrig n pos = (n `div` (2^pos)) `mod` 2 == 1
