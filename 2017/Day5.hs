@@ -1,8 +1,9 @@
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
-import Data.Array
 import Data.Array.ST
+import Data.STRef
 import Control.Monad.ST
+import Control.Monad (when)
 
 input :: [String]
 input = unsafePerformIO $ readInputLines 2017 5
@@ -12,14 +13,21 @@ jumps = map read input
 
 simulate :: (Int -> Int) -> [Int] -> Int
 simulate update js = runST $ do
-    arr <- newListArray (0, length js - 1) js :: ST s (STArray s Int Int)
-    let go pos steps
-            | pos < 0 || pos >= length js = return steps
-            | otherwise = do
-                offset <- readArray arr pos
-                writeArray arr pos (update offset)
-                go (pos + offset) (steps + 1)
-    go 0 0
+    let n = length js
+    arr <- newListArray (0, n - 1) js :: ST s (STArray s Int Int)
+    posRef <- newSTRef 0
+    stepsRef <- newSTRef 0
+    let loop = do
+          pos <- readSTRef posRef
+          if pos < 0 || pos >= n
+            then readSTRef stepsRef
+            else do
+              offset <- readArray arr pos
+              writeArray arr pos (update offset)
+              writeSTRef posRef (pos + offset)
+              modifySTRef' stepsRef (+1)
+              loop
+    loop
 
 part1 :: Int
 part1 = simulate (+1) jumps
