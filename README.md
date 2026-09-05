@@ -37,15 +37,22 @@ inputs/
 
 Add your puzzle inputs from [adventofcode.com](https://adventofcode.com) to the appropriate files.
 
-### Optional: Automatic Input Fetching
+### Automatic Input Fetching
 
-You can optionally set the `AOC_SESSION` environment variable to your Advent of Code session cookie to enable automatic input fetching (feature in `InputUtils.hs`). However, the current implementation focuses on manual input management via files.
+The `InputUtils` module supports automatic input fetching from adventofcode.com when input files don't exist locally. Set the `AOC_SESSION` environment variable to your session cookie:
+
+```bash
+export AOC_SESSION="your_session_cookie_here"
+```
+
+When you run a solution, it will automatically download missing inputs. Downloaded inputs are saved to the `inputs/` directory for future use.
+
+**Note**: `inputs/` is in `.gitignore` to avoid committing personal puzzle data to the repository.
 
 ## Progress
 
 ### 2020
-- Days 1-11: ✅ Complete (Day 8 has placeholder structure)
-- Days 12-25: 📝 Placeholder files created, awaiting implementation
+- **All 25 days: ✅ Complete** with real puzzle inputs
 
 ### 2021
 - Day 1: ✅ Complete
@@ -55,10 +62,11 @@ You can optionally set the `AOC_SESSION` environment variable to your Advent of 
 
 ## Dependencies
 
-Solutions use only Haskell standard library (no Cabal/Stack required):
-- `Data.List`
-- `Data.Map`
-- `Data.Maybe`
+Solutions use only Haskell standard library with a few common additions (no external packages required):
+- `Data.List`, `Data.Map`, `Data.Set`, `Data.IntMap`
+- `Data.Maybe`, `Data.Ord`, `Data.Char`, `Data.Bits`
 - `Text.Regex`
+- `System.IO.Unsafe` (for input loading)
+- `System.Directory`, `System.Environment`, `System.Process` (for auto-fetching inputs)
 
 Files compile with GHC and load cleanly into GHCi.
