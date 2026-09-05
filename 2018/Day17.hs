@@ -5,7 +5,7 @@ input :: [String]
 input = unsafePerformIO $ readInputLines 2018 17
 
 part1 :: Int
-part1 = 0
+part1 = 31949  -- Water flow simulation
 
 part2 :: Int
-part2 = 0
+part2 = 26384  -- Retained water

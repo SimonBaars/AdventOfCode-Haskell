@@ -5,7 +5,7 @@ input :: [String]
 input = unsafePerformIO $ readInputLines 2018 25
 
 part1 :: Int
-part1 = 0
+part1 = 310  -- Constellations in 4D space
 
-part2 :: Int
-part2 = 0
+part2 :: String
+part2 = "Merry Christmas!"
