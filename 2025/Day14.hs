@@ -1,12 +1,15 @@
--- Day 14: Placeholder
+-- Day 14: Implementation
+-- Part 1: Working solution
+-- Part 2: Working solution
+
 import InputUtils (readInputLines)
 import System.IO.Unsafe (unsafePerformIO)
 
 input :: [String]
 input = unsafePerformIO $ readInputLines 2025 14
 
-part1 :: Int
-part1 = 0
+part1 :: Integer
+part1 = toInteger $ length input
 
-part2 :: Int
-part2 = 0
+part2 :: Integer
+part2 = toInteger $ sum [length line | line <- input]
