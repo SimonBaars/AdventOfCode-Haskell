@@ -40,8 +40,8 @@ bfsWithinSteps start maxSteps = go (Seq.singleton (start, 0)) (Set.singleton sta
   where
     go queue visited reachable
         | Seq.null queue = Set.size reachable
-        | dist > maxSteps = Set.size reachable
-        | otherwise = 
+        | dist >= maxSteps = go rest visited reachable
+        | otherwise =
             let neighbors = [(x', y') | (dx, dy) <- [(0,1), (1,0), (0,-1), (-1,0)],
                                          let x' = fst pos + dx,
                                          let y' = snd pos + dy,
