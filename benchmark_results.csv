@@ -1,0 +1,21 @@
+year,day,part,time_ms,result
+2015,1,part1,122,138
+2015,1,part2,108,1771
+2015,2,part1,147,1606483
+2015,2,part2,105,3842356
+2015,3,part1,145,2081
+2015,3,part2,115,2341
+2015,4,part1,116,Traceback (most recent call last):
+  File "/workspace/2015/md5_search.py", line 2, in <module>
+    secret = open(sys.argv[1]).read().strip()
+             ^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'inputs/2015/day4.txt'
+<interactive>: readCreateProcess: python3 "2015/md5_search.py" "inputs/2015/day4.txt" "00000" (exit 1): failed
+TIMEOUT_OR_ERROR
+2015,4,part2,115,Traceback (most recent call last):
+  File "/workspace/2015/md5_search.py", line 2, in <module>
+    secret = open(sys.argv[1]).read().strip()
+             ^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'inputs/2015/day4.txt'
+<interactive>: readCreateProcess: python3 "2015/md5_search.py" "inputs/2015/day4.txt" "000000" (exit 1): failed
+TIMEOUT_OR_ERROR

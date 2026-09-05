@@ -1,0 +1,33 @@
+[0;32mBenchmarking 2015...[0m
+  Day 1: [1;33m~[0m (122ms + 108ms)
+  Day 2: [1;33m~[0m (147ms + 105ms)
+  Day 3: [1;33m~[0m (145ms + 115ms)
+  Day 4: ./benchmark.sh: line 88: 116
+
+    secret = open(sys.argv[1]).read().strip()
+             ^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'inputs/2015/day4.txt'
+<interactive>: readCreateProcess: python3 "2015/md5_search.py" "inputs/2015/day4.txt" "00000" (exit 1): failed
+TIMEOUT_OR_ERROR: syntax error in expression (error token is "secret = open(sys.argv[1]).read().strip()
+             ^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'inputs/2015/day4.txt'
+<interactive>: readCreateProcess: python3 "2015/md5_search.py" "inputs/2015/day4.txt" "00000" (exit 1): failed
+TIMEOUT_OR_ERROR")
+
+Results saved to benchmark_results.csv
+
+Summary:
+--------
+Errors: 2
+
+Top 10 slowest solutions:
+  2015 Day 2 Part 1: 147 ms
+  2015 Day 2 Part 2: 105 ms
+  2015 Day 3 Part 1: 145 ms
+  2015 Day 3 Part 2: 115 ms
+  2015 Day 1 Part 2: 108 ms
+  2015 Day 1 Part 1: 122 ms
+  2015 Day 4 Part 1: 116 ms
+  2015 Day 4 Part 2: 115 ms
+      secret = open(sys.argv[1]).read().strip() Day  Part : 0 ms
+      secret = open(sys.argv[1]).read().strip() Day  Part : 0 ms
