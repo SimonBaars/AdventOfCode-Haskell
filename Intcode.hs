@@ -12,7 +12,23 @@ module Intcode
     ) where
 
 import qualified Data.Map as Map
-import Data.List.Split (splitOn)
+
+-- Local splitOn (avoid split package dependency)
+splitOn :: Eq a => [a] -> [a] -> [[a]]
+splitOn delim xs = go xs
+  where
+    n = length delim
+    go s
+      | null s = [""]
+      | otherwise = case findDelim s of
+          Just (before, after) -> before : go after
+          Nothing -> [s]
+    findDelim s =
+      let idxs = [i | i <- [0..length s - n], take n (drop i s) == delim]
+      in case idxs of
+           (i:_) -> Just (take i s, drop (i + n) s)
+           [] -> Nothing
+
 
 type Memory = Map.Map Int Int
 type Program = [Int]
