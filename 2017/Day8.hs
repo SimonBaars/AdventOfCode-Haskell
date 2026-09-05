@@ -14,12 +14,12 @@ parseOp "inc" = Inc
 parseOp "dec" = Dec
 
 parseCond :: String -> Cond
-parseCond ">" = GT
-parseCond "<" = LT
-parseCond ">=" = GTE
-parseCond "<=" = LTE
-parseCond "==" = EQ
-parseCond "!=" = NEQ
+parseCond ">" = Greater
+parseCond "<" = Less
+parseCond ">=" = GreaterEq
+parseCond "<=" = LessEq
+parseCond "==" = Equal
+parseCond "!=" = NotEqual
 
 parseInstr :: String -> Instr
 parseInstr str = case words str of
@@ -28,12 +28,12 @@ parseInstr str = case words str of
     _ -> error $ "Invalid instruction: " ++ str
 
 evalCond :: Cond -> Int -> Int -> Bool
-evalCond GT a b = a > b
-evalCond LT a b = a < b
-evalCond GTE a b = a >= b
-evalCond LTE a b = a <= b
-evalCond EQ a b = a == b
-evalCond NEQ a b = a /= b
+evalCond Greater a b = a > b
+evalCond Less a b = a < b
+evalCond GreaterEq a b = a >= b
+evalCond LessEq a b = a <= b
+evalCond Equal a b = a == b
+evalCond NotEqual a b = a /= b
 
 execute :: [Instr] -> (Map.Map String Int, Int)
 execute instrs = foldl step (Map.empty, 0) instrs
