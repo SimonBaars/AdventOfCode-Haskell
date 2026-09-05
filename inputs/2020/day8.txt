@@ -1,5 +1,0 @@
-# Add your Day 8 input here (one instruction per line)
-# Example:
-# nop +0
-# acc +1
-# jmp +4
