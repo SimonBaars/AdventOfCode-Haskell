@@ -15,16 +15,17 @@ key = filter (/= '\n') input
 knotHash :: String -> String
 knotHash str =
     let lengths = map ord str ++ [17, 31, 73, 47, 23]
-        (_, _, sparse) = foldl' roundHash (0, 0, [0..255]) (replicate 64 lengths)
+        (_, _, sparse) = foldl' roundHash (0, 0, [0..255] :: [Int]) (replicate 64 lengths)
         dense = [foldl1 xor (take 16 $ drop (i * 16) sparse) | i <- [0..15]]
     in concatMap (\n -> (if n < 16 then "0" else "") ++ showHex n "") dense
   where
     roundHash (pos, skip, lst) lengths = foldl' step (pos, skip, lst) lengths
     step (pos, skip, lst) len =
-        let indices = [(pos + i) `mod` length lst | i <- [0..len-1]]
+        let n = length lst
+            indices = [(pos + i) `mod` n | i <- [0..len-1]]
             revValues = reverse [lst !! i | i <- indices]
-            lst' = [if i `elem` indices then revValues !! (head [j | (j, idx) <- zip [0..] indices, idx == i]) else lst !! i | i <- [0..length lst - 1]]
-        in ((pos + len + skip) `mod` length lst, skip + 1, lst')
+            lst' = [maybe (lst !! i) id (lookup i (zip indices revValues)) | i <- [0..n-1]]
+        in ((pos + len + skip) `mod` n, skip + 1, lst')
 
 hexToBinary :: Char -> String
 hexToBinary '0' = "0000"; hexToBinary '1' = "0001"
@@ -41,26 +42,26 @@ grid :: [[Bool]]
 grid = [[c == '1' | c <- concatMap hexToBinary (knotHash (key ++ "-" ++ show row))] | row <- [0..127]]
 
 countRegions :: [[Bool]] -> Int
-countRegions g = length $ go [(x, y) | x <- [0..127], y <- [0..127], g !! y !! x] Set.empty []
+countRegions g =
+  let cells = [(x, y) | x <- [0..127], y <- [0..127], g !! y !! x]
+  in length $ go cells Set.empty
   where
-    go [] _ regions = regions
-    go (pos:rest) visited regions =
-        if Set.member pos visited
-        then go rest visited regions
-        else let region = floodFill pos
-             in go rest (Set.union visited region) (region : regions)
-    
+    go [] _ = []
+    go (pos:rest) visited
+      | Set.member pos visited = go rest visited
+      | otherwise =
+          let region = floodFill pos
+          in region : go rest (Set.union visited region)
     floodFill start = go' [start] (Set.singleton start)
       where
         go' [] region = region
         go' ((x, y):queue) region =
-            let neighbors = [(x', y') | (dx, dy) <- [(0,1), (1,0), (0,-1), (-1,0)],
-                                         let x' = x + dx,
-                                         let y' = y + dy,
-                                         x' >= 0, x' < 128, y' >= 0, y' < 128,
-                                         g !! y' !! x',
-                                         Set.notMember (x', y') region]
-            in go' (queue ++ neighbors) (foldl (flip Set.insert) region neighbors)
+          let neighbors = [(x', y') | (dx, dy) <- [(0,1),(1,0),(0,-1),(-1,0)],
+                                       let x' = x + dx, let y' = y + dy,
+                                       x' >= 0, x' < 128, y' >= 0, y' < 128,
+                                       g !! y' !! x',
+                                       Set.notMember (x', y') region]
+          in go' (queue ++ neighbors) (foldl (flip Set.insert) region neighbors)
 
 part1 :: Int
 part1 = sum [sum [if cell then 1 else 0 | cell <- row] | row <- grid]
