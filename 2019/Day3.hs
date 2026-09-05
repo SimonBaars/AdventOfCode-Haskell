@@ -1,6 +1,6 @@
 import InputUtils (readInput)
+import Intcode
 import System.IO.Unsafe (unsafePerformIO)
-import Data.List.Split (splitOn)
 import qualified Data.Set as Set
 
 input :: String
@@ -8,32 +8,33 @@ input = unsafePerformIO $ readInput 2019 3
 
 type Point = (Int, Int)
 
-parsePath :: String -> [Point]
-parsePath path = scanl move (0, 0) (splitOn "," path)
-  where
-    move (x, y) dir =
-        let (d:num) = dir
-            n = read num
-        in case d of
-            'U' -> (x, y + n)
-            'D' -> (x, y - n)
-            'L' -> (x - n, y)
-            'R' -> (x + n, y)
-            _ -> (x, y)
+parsePath :: String -> [(Char, Int)]
+parsePath path = map parseMove $ words $ map (\c -> if c == ',' then ' ' else c) path
+  where parseMove (d:num) = (d, read num)
 
-allPoints :: [Point] -> [Point]
-allPoints path = concat $ zipWith segment path (tail path)
+pathPoints :: [(Char, Int)] -> [Point]
+pathPoints moves = scanl move (0, 0) (concatMap expandMove moves)
   where
-    segment (x1, y1) (x2, y2)
-        | x1 == x2 = [(x1, y) | y <- [min y1 y2 .. max y1 y2]]
-        | otherwise = [(x, y1) | x <- [min x1 x2 .. max x1 x2]]
+    expandMove (d, n) = replicate n d
+    move (x, y) 'U' = (x, y + 1)
+    move (x, y) 'D' = (x, y - 1)
+    move (x, y) 'L' = (x - 1, y)
+    move (x, y) 'R' = (x + 1, y)
+
+manhattan :: Point -> Int
+manhattan (x, y) = abs x + abs y
 
 [wire1, wire2] = lines input
-points1 = Set.fromList $ allPoints $ parsePath wire1
-points2 = Set.fromList $ allPoints $ parsePath wire2
+points1 = tail $ pathPoints $ parsePath wire1
+points2 = tail $ pathPoints $ parsePath wire2
+
+intersections :: [Point]
+intersections = Set.toList $ Set.intersection (Set.fromList points1) (Set.fromList points2)
 
 part1 :: Int
-part1 = minimum [abs x + abs y | (x, y) <- Set.toList $ Set.intersection points1 points2, (x, y) /= (0, 0)]
+part1 = minimum $ map manhattan intersections
 
 part2 :: Int
-part2 = 0  -- Requires step counting along wires
+part2 = minimum [steps1 + steps2 | p <- intersections,
+                 let steps1 = length (takeWhile (/= p) points1) + 1,
+                 let steps2 = length (takeWhile (/= p) points2) + 1]
