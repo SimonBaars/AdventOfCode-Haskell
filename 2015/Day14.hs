@@ -26,4 +26,11 @@ part1 :: Int
 part1 = maximum [distance r 2503 | r <- map parseReindeer input]
 
 part2 :: Int
-part2 = 0  -- Placeholder for points-based system
+part2 = maximum points
+  where
+    reindeer = map parseReindeer input
+    distances t = [distance r t | r <- reindeer]
+    leaders t = let ds = distances t
+                    maxD = maximum ds
+                in [i | (i, d) <- zip [0..] ds, d == maxD]
+    points = [length [t | t <- [1..2503], i `elem` leaders t] | i <- [0..length reindeer - 1]]
