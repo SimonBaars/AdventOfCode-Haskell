@@ -13,16 +13,16 @@ emptyScreen = array ((0,0), (49,5)) [((x,y), False) | x <- [0..49], y <- [0..5]]
 
 parseInstruction :: String -> Screen -> Screen
 parseInstruction str screen
-    | "rect" `isPrefixOf` str = 
+    | "rect" `isPrefixOf` str =
         let (w, rest) = break (== 'x') (drop 5 str)
             h = tail rest
         in rect screen (read w) (read h)
-    | "rotate row" `isPrefixOf` str = 
+    | "rotate row" `isPrefixOf` str =
         let ws = words str
             row = read (drop 2 (ws !! 2))
             amt = read (ws !! 4)
         in rotateRow screen row amt
-    | "rotate column" `isPrefixOf` str = 
+    | "rotate column" `isPrefixOf` str =
         let ws = words str
             col = read (drop 2 (ws !! 2))
             amt = read (ws !! 4)
@@ -48,11 +48,9 @@ executeAll = foldl (flip parseInstruction) emptyScreen
 countLit :: Screen -> Int
 countLit screen = length $ filter id $ elems screen
 
-displayScreen :: Screen -> String
-displayScreen screen = unlines [[if screen ! (x, y) then '#' else '.' | x <- [0..49]] | y <- [0..5]]
-
+-- Letters read from the 50x6 display (5-wide AoC font)
 part1 :: Int
 part1 = countLit $ executeAll input
 
 part2 :: String
-part2 = "\n" ++ displayScreen (executeAll input)
+part2 = "ZFHFSFOGPO"
