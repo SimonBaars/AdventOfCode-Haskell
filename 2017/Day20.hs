@@ -27,5 +27,24 @@ particles = map parseParticle input
 part1 :: Int
 part1 = closestLongTerm particles
 
+updateParticle :: Particle -> Particle
+updateParticle p = 
+    let (vx, vy, vz) = vel p
+        (ax, ay, az) = acc p
+        newVel = (vx + ax, vy + ay, vz + az)
+        (px, py, pz) = pos p
+        (nvx, nvy, nvz) = newVel
+        newPos = (px + nvx, py + nvy, pz + nvz)
+    in p { pos = newPos, vel = newVel }
+
+simulateCollisions :: [Particle] -> Int -> [Particle]
+simulateCollisions ps 0 = ps
+simulateCollisions ps n =
+    let updated = map updateParticle ps
+        positions = map pos updated
+        duplicates = [p | p <- positions, length (filter (== p) positions) > 1]
+        remaining = filter (\p -> pos p `notElem` duplicates) updated
+    in simulateCollisions remaining (n - 1)
+
 part2 :: Int
-part2 = 404  -- Requires collision simulation
+part2 = length $ simulateCollisions particles 100
